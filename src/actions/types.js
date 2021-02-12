@@ -1,0 +1,12 @@
+export const DELETE_POST = 'DELETE_POST';
+export const SAVE_POST = 'SAVE_POST';
+export const SAVE_POST_ERROR = 'SAVE_POST_ERROR';
+export const GET_POSTS = 'GET_POSTS';
+export const CLEAR_MESSAGE = 'CLEAR_MESSAGE';
+export const DELETE_POST_ERROR = 'DELETE_POST_ERROR';
+
+export const SET_INPUT_NAME = 'SET_INPUT_NAME';
+export const SET_INPUT_NAME_SEARCH = 'SET_INPUT_NAME_SEARCH';
+export const SET_INPUT_DESCRIPTION = 'SET_INPUT_DESCRIPTION';
+export const RESET_INPUT = 'RESET_INPUT';
+

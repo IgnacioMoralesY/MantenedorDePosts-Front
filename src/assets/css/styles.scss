@@ -1,0 +1,36 @@
+.iconPost{
+	font-size: 25px;
+	cursor: pointer;
+}
+
+.delete{
+	color: #dc3545;
+}
+
+.scale:hover{
+	transform: scale(1.2); 
+}
+
+.searchInput{
+	width: 20%;
+}
+
+.labelSearch{
+	width: 67px;
+    font-weight: bold;
+    font-size: 21px;
+    padding-top: 2px;
+}
+
+.selectPostsToShow{
+	width: 60px;
+}
+
+.contentSelectPostToShow{
+	p, select {
+		margin-top: 8px;
+		margin-bottom: 1px;
+	}
+
+	padding-left: 60px;
+}
