@@ -1,52 +1,27 @@
-import React from 'react';
-import InputNewPost from './InputNewPost'
+import React from 'react'
+import { connect } from 'react-redux'
 
-import Button from 'react-bootstrap/Button';
-import Modal from 'react-bootstrap/Modal';
+import Button from 'react-bootstrap/Button'
+import Modal from 'react-bootstrap/Modal'
 
-class ModalController extends React.Component{
-	state = {
-		modalIsOpen: false
-	}
+const ModalComponent = ({ open, setOpen, data }) => {
+  return (
+    <Modal show={open} onHide={() => setOpen(false)}>
+      <Modal.Header closeButton>
+        <Modal.Title>
+          {data.title}
+        </Modal.Title>
+      </Modal.Header>
 
-	showModal = () => {
-		this.setState({
-			modalIsOpen: true
-		});
-	}
+      <Modal.Body>
+        {data.body}
+      </Modal.Body>
 
-	hideModal = () => {
-		this.setState({
-			modalIsOpen: false
-		});
-	}
-
-	render() {
-		return(
-			<div>
-				<Button color='success' className='mb-2 cursor-pointer' onClick={this.showModal}> Crear Nuevo Post </Button>
-				<Modal show={this.state.modalIsOpen} onHide={this.hideModal}>
-			      	<Modal.Header closeButton>
-				        <Modal.Title>Insertar Nuevo Post</Modal.Title>
-				    </Modal.Header>
-
-				    <Modal.Body>
-						<InputNewPost onPress={this.hideModal}/>
-				    </Modal.Body>
-
-			      	<Modal.Footer>
-			        	<Button variant="secondary" onClick={this.hideModal}>Cancelar</Button>
-			      	</Modal.Footer>
-			    </Modal>
-		    </div>
-		)
-	}
+      <Modal.Footer>
+        <Button variant='secondary' onClick={() => setOpen(false)}>Cancelar</Button>
+      </Modal.Footer>
+    </Modal>
+  )
 }
 
-
-export default ModalController;
-
-
-
-
-
+export default connect(null, {})(ModalComponent)

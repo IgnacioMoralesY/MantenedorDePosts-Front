@@ -1,97 +1,115 @@
-import React, {useEffect, useState } from 'react';
-import { connect } from 'react-redux';
-import { BiTrash } from 'react-icons/bi';
-import { deletePost, setInputNameSearch, getPosts, clearMessage } from '../actions';
+import React, { useEffect, useState } from 'react'
+import { connect } from 'react-redux'
+import { BiTrash } from 'react-icons/bi'
+import { deletePost, getPosts } from '../actions/index'
 
-import Table from 'react-bootstrap/Table';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
+import Table from 'react-bootstrap/Table'
+import Row from 'react-bootstrap/Row'
+import Col from 'react-bootstrap/Col'
 
-import Pagination from './pagination';
-import swal from 'sweetalert';
+import { Oval } from 'react-loader-spinner'
+import Pagination from '../utils/pagination.js'
 
-const Posts = ({ posts, inputs, deletePost , clearMessage,  setInputNameSearch, getPosts}) => {
+import swal from 'sweetalert'
 
-	const [currentPage, setCurrentPage] = useState(1);
-	const [postPerPage] = useState(8);
+const Posts = ({ postState, deletePost, getPosts }) => {
+  const [nameFilter, SetNameFilter] = useState('')
+  const [currentPage, setCurrentPage] = useState(1)
+  const [postPerPage] = useState(8)
 
-	let name = inputs.nameSearch;
+  useEffect(() => {
+    getPosts()
+  }, [getPosts])
 
-	useEffect(() => {
-		getPosts();
-	}, [])
+  const filterPosts = postState.posts.filter(post => (nameFilter.length > 0) ? post.name.toLowerCase().includes(nameFilter.toLowerCase()) : true)
 
-	
-	const filterPosts = posts.getPosts.filter(post => post.name.toLowerCase().includes(name.toLowerCase()));
+  const indexOfLastPost = currentPage * postPerPage
+  const indexOfFirstPost = indexOfLastPost - postPerPage
+  const currentPosts = filterPosts.slice(indexOfFirstPost, indexOfLastPost)
 
-	const indexOfLastPost = currentPage * postPerPage;
-	const indexOfFirstPost = indexOfLastPost - postPerPage;
-	const currentPosts = filterPosts.slice(indexOfFirstPost, indexOfLastPost);
+  if (postState.posts.length < postPerPage && currentPage !== 1) {
+    setCurrentPage(1)
+  }
 
-	const paginate = (pageNumber) => setCurrentPage(pageNumber);
-	
-	if(posts.sendMessage){
-		setTimeout(() => {
-			swal(posts.messages.title, posts.messages.message, posts.messages.status)
-				.then(() => {
-					return clearMessage();
-				});
-			}, 500
-		);
-	}
+  const paginate = (pageNumber) => setCurrentPage(pageNumber)
 
-	return(
-		<div>
-			<Row>
-				<Col className='d-flex'>
-					<label className='labelSearch'> Filtrar</label>
-					<input 
-						name='search' 
-						type='text' 
-						className='form-control searchInput' 
-						placeholder='Ingrese Nombre del Post' 
-						onChange={e => setInputNameSearch(e.target.value)}
-					/>
-			    </Col>
-			</Row>
+  const postRemoved = (postId) => {
+    swal({
+      title: 'Estas seguro que deseas eliminar este Post?',
+      text: 'Una vez eliminado este Post no lo podras recuperar',
+      icon: 'warning',
+      buttons: true,
+      dangerMode: true
+    })
+      .then((willDelete) => {
+        if (willDelete) {
+          if ((postState.posts.length - 1) % (postPerPage) === 0) {
+            setCurrentPage(currentPage - 1)
+          }
+          deletePost(postId)
+        }
+      })
+  }
 
-			<Table striped bordered hover className='mb-0'>
-			    <thead>
-			    	<tr>
-				        <th> Id </th>
-				        <th> Nombre </th>
-				        <th> Descripción </th>
-				        <th> Acción </th>
-			        </tr>
-			    </thead>
-				<tbody>
-					{
-						currentPosts.map((post, i) => (
-							<tr key={i}>
-								<td> {post.id} </td>
-								<td> {post.name} </td>
-								<td> {post.description} </td>
-								<td> <BiTrash className='iconPost delete scale' onClick={() => deletePost(post.id)} /> </td>
-							</tr>
-						))
-					}
-				</tbody>
-			</Table>
-			<Row>
-				<Col className='d-flex'>
-					<Pagination postsPerPage={postPerPage} totalPosts={filterPosts.length} paginate={paginate} />
-			    </Col>
-				<Col xs={3} className='text-right'>
-					<p className='mb-0 mt-1 mr-2'> Mostrando {currentPosts.length} de {filterPosts.length} Posts </p>
-			    </Col>
-			</Row>
-			
-		</div>
-	)
-};
+  let loading = (<div />)
+  if (postState.loading) {
+    loading = (
+      <div className='text-center loadingContent col-12 my-5'>
+        <Oval color='#3f51b5' height={100} width={100} timeout={60000} />
+      </div>
+    )
+  }
 
-const mapStateProps = ({posts, inputs}) => ({posts, inputs});
+  return (
+    <div>
+      {loading}
 
+      <Row>
+        <Col className='d-flex'>
+          <label className='labelSearch'> Filtrar</label>
+          <input
+            name='search'
+            type='text'
+            className='form-control searchInput'
+            placeholder='Ingrese Nombre del Post'
+            onChange={e => SetNameFilter(e.target.value)}
+          />
+        </Col>
+      </Row>
 
-export default connect(mapStateProps, {deletePost, setInputNameSearch, getPosts, clearMessage})(Posts);
+      <Table striped bordered hover className='mb-0'>
+        <thead>
+          <tr>
+            <th> Id </th>
+            <th> Nombre </th>
+            <th> Descripción </th>
+            <th> Acción </th>
+          </tr>
+        </thead>
+        <tbody>
+          {currentPosts.map((post, i) => (
+            <tr key={i}>
+              <td> {post.id} </td>
+              <td> {post.name} </td>
+              <td> {post.description} </td>
+              <td> <BiTrash className='iconPost delete scale' onClick={() => postRemoved(post.id)} /> </td>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
+      <Row>
+        <Col className='d-flex'>
+          <Pagination postsPerPage={postPerPage} totalPosts={filterPosts.length} paginate={paginate} />
+        </Col>
+        <Col xs={3} className='text-right'>
+          <p className='mb-0 mt-1 mr-2'> Mostrando {currentPosts.length} de {filterPosts.length} Posts </p>
+        </Col>
+      </Row>
 
+    </div>
+  )
+}
+
+const mapStateProps = ({ postState, messageState }) => ({ postState, messageState })
+
+export default connect(mapStateProps, { deletePost, getPosts })(Posts)

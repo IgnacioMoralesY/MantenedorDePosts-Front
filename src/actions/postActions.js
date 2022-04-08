@@ -1,73 +1,92 @@
-import { DELETE_POST, DELETE_POST_ERROR, SAVE_POST, GET_POSTS, SAVE_POST_ERROR, CLEAR_MESSAGE } from './types';
-import { getPostsFetch, saveNewPost, deletePostByPostId } from '../services/postService';
+import { DELETE_POST, SAVE_POST, GET_POSTS, CLEAR_MESSAGE, LOADING_INI, LOADING_OFF } from './types'
+import { getPostsFetch, saveNewPost, deletePostByPostId } from '../services/postService'
+import { setMessage } from './messagesActions'
 
 export const deletePost = (postId) => dispatch => {
-	deletePostByPostId(postId)
-		.then(response => {
-			if(response.error){
-				dispatch(postDeleteError());
-			}else{
-				dispatch(postDeleteSuccess(response));
-			}
-		})
-		.catch(() => {
-			dispatch(postDeleteError());
-		});
-};
+  const sendMessage = { title: 'Error!', message: 'No ha podido eliminar el Post', status: 'error' }
+  dispatch(loadingIni())
+  deletePostByPostId(postId)
+    .then(response => {
+      if (response.status !== 200) {
+        dispatch(setMessage(sendMessage))
+      } else {
+        sendMessage.title = 'Exitoso!'
+        sendMessage.message = 'Tu Post se ha eliminado de forma correcta'
+        sendMessage.status = 'success'
+        dispatch(setMessage(sendMessage))
+        dispatch(postDeleteSuccess(response.data.post))
+      }
+      dispatch(loadingOff())
+    })
+    .catch(() => {
+      dispatch(setMessage(sendMessage))
+      dispatch(loadingOff())
+    })
+}
 
 export const savePost = (post) => dispatch => {
-	saveNewPost(post)
-		.then(response => {
-			if(response.error){
-				if(JSON.stringify(response.error).includes('401')){
-					dispatch(postCreatedError('Error, este Post ya se encuentra creado!'));
-				}else{
-					dispatch(postCreatedError('Error, Problema interno del servidor, no se ha podido crear el nuevo Post. Lo lamentamos'));
-				}
-			}else{
-				dispatch(postCreatedSuccess(response));
-			}
-		})
-		.catch(() => {
-			dispatch(postCreatedError('Error, Problema interno del servidor, no se ha podido crear el nuevo Post. Lo lamentamos'));
-		});
-};
+  const sendMessage = { title: 'Error!', message: 'No ha podido crear el Post', status: 'error' }
+  dispatch(loadingIni())
+  saveNewPost(post)
+    .then(response => {
+      if (response.status !== 200) {
+        dispatch(setMessage(sendMessage))
+      } else {
+        sendMessage.title = 'Exitoso!'
+        sendMessage.message = 'Tu Post se ha creado de forma correcta'
+        sendMessage.status = 'success'
+        dispatch(setMessage(sendMessage))
+        dispatch(postCreatedSuccess(response.data.post))
+      }
+      dispatch(loadingOff())
+    })
+    .catch(() => {
+      dispatch(setMessage(sendMessage))
+      dispatch(loadingOff())
+    })
+}
 
 export const getPosts = () => dispatch => {
-	getPostsFetch()
-		.then(response => {
-			dispatch({
-                type: GET_POSTS,
-                posts: response
-            });
-		})
-		.catch( () => {
-			dispatch({
-                type: GET_POSTS,
-                posts: []
-            });
-		});
-};
+  const sendMessage = { title: 'Ups!', message: 'No se han encontrado datos!', status: 'error' }
+  dispatch(loadingIni())
+  getPostsFetch()
+    .then(response => {
+      if (response.status !== 200) {
+        dispatch(setMessage(sendMessage))
+      } else {
+        dispatch(fetchPostSuccess(response.data))
+      }
+      dispatch(loadingOff())
+    })
+    .catch(() => {
+      dispatch(setMessage(sendMessage))
+      dispatch(loadingOff())
+    })
+}
+
+const loadingIni = () => ({
+  type: LOADING_INI
+})
+
+const loadingOff = () => ({
+  type: LOADING_OFF
+})
+
+const fetchPostSuccess = (posts) => ({
+  type: GET_POSTS,
+  posts
+})
 
 export const clearMessage = () => ({
-	type: CLEAR_MESSAGE
-});
+  type: CLEAR_MESSAGE
+})
 
 const postCreatedSuccess = newPost => ({
-	type: SAVE_POST,
-	newPost
-});
-
-const postCreatedError = (message) => ({
-	type: SAVE_POST_ERROR,
-	message
-});
+  type: SAVE_POST,
+  newPost
+})
 
 const postDeleteSuccess = response => ({
-	type: DELETE_POST,
-	postId: response.id
-});
-
-const postDeleteError = () => ({
-	type: DELETE_POST_ERROR
-});
+  type: DELETE_POST,
+  postId: response.id
+})

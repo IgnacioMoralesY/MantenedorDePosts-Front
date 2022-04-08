@@ -1,2 +1,2 @@
-export * from './postActions';
-export * from './inputActions';
+export * from './postActions'
+export * from './messagesActions'

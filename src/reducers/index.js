@@ -1,7 +1,8 @@
-import { combineReducers } from 'redux';
-import posts from './postReducer';
-import inputs from './inputsReducer';
+import { combineReducers } from 'redux'
+import postState from './postReducer'
+import messageState from './messageReducer'
 
 export default combineReducers({
-	posts, inputs
-});
+  postState,
+  messageState
+})

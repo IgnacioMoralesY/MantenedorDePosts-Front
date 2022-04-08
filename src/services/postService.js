@@ -1,34 +1,32 @@
-import axios from 'axios';
+import axios from 'axios'
+const config = global.ENV[global.node_env]
 
 export const getPostsFetch = () => (
-	axios.get('http://localhost:3700/posts')
-		.then(res => {
-			return res.data
-		})
-		.catch(error => {
-			console.log(error);
-			return {error}
-		})
-);
+  axios.get(`${config.apiPath}/post`)
+    .then(res => {
+      return res
+    })
+    .catch(error => {
+      return { error }
+    })
+)
 
 export const saveNewPost = (post) => (
-	axios.post('http://localhost:3700/post', post, {})
-		.then(res => {
-			return res.data
-		})
-		.catch(error => {
-			return {error}
-		})
-);
+  axios.post(`${config.apiPath}/post`, post, {})
+    .then(res => {
+      return res
+    })
+    .catch(error => {
+      return { error }
+    })
+)
 
 export const deletePostByPostId = (postId) => (
-	axios.delete('http://localhost:3700/post/'+postId)
-		.then(res => {
-			return res.data
-		})
-		.catch(error => {
-			console.log(error);
-			return {error}
-		})
-);
-
+  axios.delete(`${config.apiPath}/post/${postId}`)
+    .then(res => {
+      return res
+    })
+    .catch(error => {
+      return { error }
+    })
+)
